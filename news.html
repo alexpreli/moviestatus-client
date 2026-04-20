@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Entertainment News - MovieStatus</title>
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@400;500;600;700;800&family=Oxygen:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body data-theme="dark" class="page-news">
+    <div class="neon-edge-top"></div>
+    <div class="neon-edge-bottom"></div>
+
+    <div class="site-top" id="siteTop">
+    <div class="noticebar">
+      <div class="noticebar_inner">
+        <span class="noticebar_dot"></span>
+        <span class="noticebar_text">Headlines come from BBC News (entertainment &amp; arts) via a public JSON feed service. Outlets and links are third parties; we do not control their content.</span>
+      </div>
+    </div>
+
+    <header class="header" id="siteHeader">
+      <div class="header_inner">
+        <a href="./index.html" class="logo">
+          <div class="logo_mark">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="3"/>
+              <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+            </svg>
+          </div>
+          <div class="logo_text">
+            <h1 class="logo_title">MovieStatus</h1>
+          </div>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a class="nav_link" href="./index.html#heroSection">Home</a>
+          <a class="nav_link" href="./index.html#featuredMovies">Movies</a>
+          <a class="nav_link" href="./index.html#featuredShows">TV Series</a>
+          <a class="nav_link nav_link-active" href="./news.html">News</a>
+        </nav>
+      </div>
+    </header>
+    </div>
+
+    <main class="content-section news-page">
+      <div class="section-wrap">
+        <div class="section-heading">
+          <h2 class="section-heading_title">Entertainment News</h2>
+          <p class="section-heading_desc" id="newsFeedAttribution">Loading headlines…</p>
+        </div>
+        <div id="newsGrid" class="news-grid" aria-live="polite"></div>
+        <p id="newsError" class="empty-state" style="display: none" role="alert"></p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer_bottom">
+        <span class="footer_copy">&copy; 2026 MovieStatus. All rights reserved.</span>
+        <a href="./index.html" class="footer_link">Back to Home</a>
+      </div>
+    </footer>
+
+    <script src="./news-feed.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        var grid = document.getElementById("newsGrid");
+        var errEl = document.getElementById("newsError");
+        var attr = document.getElementById("newsFeedAttribution");
+        var siteTop = document.getElementById("siteTop");
+        if (siteTop) {
+          function setH() {
+            document.documentElement.style.setProperty("site-top-h", siteTop.offsetHeight + "px");
+          }
+          setH();
+          if (typeof ResizeObserver !== "undefined") new ResizeObserver(setH).observe(siteTop);
+          else window.addEventListener("resize", setH);
+        }
+
+        function fmtDate(pub) {
+          if (!pub) return "";
+          var d = new Date(pub);
+          return isNaN(d.getTime()) ? pub : d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+        }
+
+        if (!window.MovieStatusNews) {
+          if (errEl) {
+            errEl.style.display = "block";
+            errEl.textContent = "News loader missing.";
+          }
+          return;
+        }
+
+        window.MovieStatusNews.fetchArticles(15)
+          .then(function (data) {
+            if (attr && data.source) {
+              attr.textContent =
+                "Recent stories from " + data.source + ". Click a headline to read the source article.";
+            }
+            var list = data.articles || [];
+            if (!list.length) {
+              if (errEl) {
+                errEl.style.display = "block";
+                errEl.textContent = "No articles available right now. Try again later.";
+              }
+              return;
+            }
+            grid.innerHTML = "";
+            list.forEach(function (a) {
+              var art = document.createElement("article");
+              art.className = "news-card";
+              var meta = document.createElement("div");
+              meta.className = "news-card_meta";
+              meta.textContent = [a.source, fmtDate(a.pubDate)].filter(Boolean).join(" · ");
+              var h = document.createElement("h3");
+              h.className = "news-card_title";
+              var link = document.createElement("a");
+              link.href = a.link;
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+              link.textContent = a.title;
+              h.appendChild(link);
+              art.appendChild(meta);
+              art.appendChild(h);
+              grid.appendChild(art);
+            });
+          })
+          .catch(function (e) {
+            if (errEl) {
+              errEl.style.display = "block";
+              errEl.textContent = String(e && e.message ? e.message : e);
+            }
+            if (attr) attr.textContent = "Could not load feed.";
+          });
+      })();
+    </script>
+  </body>
+</html>

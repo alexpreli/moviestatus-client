@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MovieStatus - Streaming Availability Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@400;500;600;700;800&family=Oxygen:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body data-theme="dark">
+
+    <div class="neon-edge-top"></div>
+    <div class="neon-edge-bottom"></div>
+
+    <div class="site-top" id="siteTop">
+      <div class="noticebar">
+        <div class="noticebar_inner">
+          <div class="noticebar_dot"></div>
+          <span class="noticebar_text">Streaming Availability Tracker &mdash; find where to watch movies &amp; TV shows on any online source for free. Prefer official platforms.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="support-card" id="supportCard">
+      <button id="closeSupportBtn" class="close-support-btn" aria-label="Close" style="position: absolute; top: 6px; right: 6px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 50%; transition: color 0.2s;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <p class="support-card_msg">Enjoying MovieStatus?</p>
+      <a href="https://ko-fi.com/preli" target="_blank" class="support-card_btn">
+        <img src="https://ko-fi.com/img/cup-border.png" alt="" class="support-card_icon" />
+        Support Me on Ko-fi
+      </a>
+    </div>
+
+    <header class="header" id="siteHeader">
+      <div class="header_inner">
+        <a href="./index.html" class="logo">
+          <div class="logo_mark">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="3"/>
+              <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+            </svg>
+          </div>
+          <div class="logo_text">
+            <h1 class="logo_title">MovieStatus</h1>
+          </div>
+        </a>
+
+        <nav class="nav" aria-label="Primary">
+          <a class="nav_link nav_link-active" href="#heroSection">Home</a>
+          <a class="nav_link" href="#featuredMovies">Movies</a>
+          <a class="nav_link" href="#featuredShows">TV Series</a>
+          <a class="nav_link" href="#upcomingSection">Upcoming</a>
+          <a class="nav_link" href="#trendingSection">Trending</a>
+          <a class="nav_link" href="#subtitleSearchSection">Text Subtitles</a>
+          <a class="nav_link" href="#qualitySearchSection">Video Qualities</a>
+          <a class="nav_link" href="#audioSearchSection">Audio Languages</a>
+          <a class="nav_link" href="./news.html">News</a>
+        </nav>
+
+        <button class="header_searchToggle" id="headerSearchToggle" aria-label="Toggle search">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="searchDropdown" id="searchDropdown">
+        <div class="searchDropdown_inner">
+          <div class="searchRow">
+            <input id="searchInput" type="text" class="searchRow_input" placeholder="Search by Movie / TV Series title or TMDb ID (e.g. 502356)..." />
+            <select id="searchType" class="searchRow_select">
+              <option value="all" selected>All</option>
+              <option value="movie">Movies</option>
+              <option value="show">TV Series</option>
+            </select>
+            <button id="searchBtn" class="searchRow_btn" type="button">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              Search
+            </button>
+          </div>
+          <p id="statusLine" class="statusLine" role="status"></p>
+          <div class="disclaimer-container">
+            <p class="legal-disclaimer legal-disclaimer-tip">Tip: specify the year for more accurate results</p>  
+            <p class="legal-disclaimer">MovieStatus is a legal streaming availability tracker. We help you find where movies 
+              and TV series can be watched on legitimate platforms. Prefer licensed services; 
+              we do not endorse unauthorized sources.</p>
+          </div>
+        </div>
+      </div>
+    </header>
+    </div>
+
+    <main id="mainContainer">
+      <section id="globalErrorSection" class="content-section" style="display: none; padding: 100px 0;">
+        <div class="section-wrap">
+          <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+            <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--danger); margin-bottom: 24px; opacity: 0.8;">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <h2 class="section-heading_title" style="font-size: 32px; margin-bottom: 16px;">Server Connection Failed</h2>
+            <p class="section-heading_desc" style="font-size: 18px; line-height: 1.6;">We're having trouble connecting to the MovieStatus API. This usually means the server is down for maintenance or having connectivity issues. Please try refreshing in a few minutes.</p>
+            <button onclick="window.location.reload()" class="searchRow_btn" style="margin: 32px auto 0; padding: 12px 32px; font-size: 16px;">Try Again</button>
+          </div>
+        </div>
+      </section>
+
+      <div id="homeContent">
+      <section class="content-section search-results-section" id="searchResultsSection" aria-live="polite">
+        <div class="section-wrap">
+          <div class="section-heading search-results-header">
+            <div>
+              <h2 class="section-heading_title">Search Results</h2>
+              <p class="section-heading_desc" id="searchResultsDesc">Showing results for your query</p>
+              <p class="legal-disclaimer legal-disclaimer-tight">Leak status uses metadata checks. Press "WATCH IT ONLINE" to open a new search tab for the same title.</p>
+            </div>
+            <button id="closeSearchBtn" class="close-search-btn" type="button" title="Hide search results">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div id="searchResults" class="card-grid"></div>
+        </div>
+      </section>
+
+      <section class="hero" id="heroSection">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Featured Movies</h2>
+            <p class="section-heading_desc">Most recent titles available</p>
+          </div>
+          <div id="heroMovies" class="hero_grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section" id="featuredMovies">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Online Movies</h2>
+            <p class="section-heading_desc">Recently released movies streaming online</p>
+          </div>
+          <div id="featuredMoviesGrid" class="card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section" id="featuredShows">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Online TV Series</h2>
+            <p class="section-heading_desc">Recently aired TV series available on streaming platforms</p>
+          </div>
+          <div id="featuredShowsGrid" class="card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section" id="upcomingSection">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Upcoming Movies</h2>
+            <p class="section-heading_desc">Movies coming soon to theaters and streaming</p>
+          </div>
+          <div id="upcomingGrid" class="card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section" id="trendingSection">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Trending This Week</h2>
+            <p class="section-heading_desc">Most popular movies and TV shows right now</p>
+          </div>
+          <div id="trendingGrid" class="card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section" id="popularClassicSection">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Popular Classics</h2>
+            <p class="section-heading_desc">Highly popular movies from 1970 to 2015</p>
+          </div>
+          <div id="popularClassicGrid" class="card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section tool-section" id="subtitleSearchSection">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Search available Subtitle Languages</h2>
+            <p class="section-heading_desc">
+               Find subtitles availability and text translation tracks from public sources
+            </p>
+          </div>
+          <div class="tool-search">
+            <input
+              id="subtitleSearchInput"
+              type="text"
+              class="searchRow_input"
+              placeholder="Movie / TV Series Title (optional: year) or TMDb ID…"
+              autocomplete="off"
+            />
+            <button id="subtitleSearchBtn" class="searchRow_btn" type="button">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              Search
+            </button>
+          </div>
+          <p id="subtitleSearchStatus" class="statusLine tool-section_status" role="status"></p>
+          <p class="legal-disclaimer legal-disclaimer-tight">
+            Uses TMDb for titles. Prefer licensed services; we do not endorse unauthorized sources.
+          </p>
+          <div id="subtitleSearchResults" class="card-grid tool-card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section tool-section" id="qualitySearchSection">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Search available Stream Quality (SD, HD, Full HD, 2K, 4K, etc.)</h2>
+            <p class="section-heading_desc">
+              Detect public high-quality stream variants
+            </p>
+          </div>
+          <div class="tool-search">
+            <input
+              id="qualitySearchInput"
+              type="text"
+              class="searchRow_input"
+              placeholder="Movie / TV Series Title (optional: year) or TMDb ID…"
+              autocomplete="off"
+            />
+            <button id="qualitySearchBtn" class="searchRow_btn" type="button">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              Search
+            </button>
+          </div>
+          <p id="qualitySearchStatus" class="statusLine tool-section_status" role="status"></p>
+          <p class="legal-disclaimer legal-disclaimer-tight">
+            Uses TMDb for titles. Prefer licensed services; we do not endorse unauthorized sources.
+          </p>
+          <div id="qualitySearchResults" class="card-grid tool-card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+      <section class="content-section tool-section" id="audioSearchSection">
+        <div class="section-wrap">
+          <div class="section-heading">
+            <h2 class="section-heading_title">Search available Audio Languages</h2>
+            <p class="section-heading_desc">
+              Find available audio tracks for a specific title
+            </p>
+          </div>
+          <div class="tool-search">
+            <input
+              id="audioSearchInput"
+              type="text"
+              class="searchRow_input"
+              placeholder="Movie / TV Series Title (optional: year) or TMDb ID…"
+              autocomplete="off"
+            />
+            <button id="audioSearchBtn" class="searchRow_btn" type="button">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              Search
+            </button>
+          </div>
+          <p id="audioSearchStatus" class="statusLine tool-section_status" role="status"></p>
+          <p class="legal-disclaimer legal-disclaimer-tight">
+            Audio results come from public listings only, not from playback guarantees. Prefer licensed services.
+          </p>
+          <div id="audioSearchResults" class="card-grid tool-card-grid" aria-live="polite"></div>
+        </div>
+      </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer_top">
+        <div class="footer_brand">
+          <div class="logo logo-footer">
+            <div class="logo_mark">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="3"/>
+                <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+              </svg>
+            </div>
+            <div class="logo_text">
+              <span class="logo_title">MovieStatus</span>
+            </div>
+          </div>
+          <p class="footer_desc">MovieStatus is a legal streaming availability tracker.<br>We help you find where movies and TV series can be watched on legitimate platforms.<br>Prefer licensed services; we do not endorse unauthorized sources.</p>
+        </div>
+        <div class="footer_links">
+          <h4 class="footer_linksTitle">Legal</h4>
+          <a href="./dmca.html" class="footer_link">DMCA</a>
+          <a href="./terms.html" class="footer_link">Terms of Use</a>
+          <a href="./privacy.html" class="footer_link">Privacy Policy</a>
+          <a href="./transparency.html" class="footer_link">Transparency</a>
+          <a href="./contact.html" class="footer_link">Contact Us</a>
+        </div>
+        <div class="footer_links">
+          <h4 class="footer_linksTitle">Browse</h4>
+          <a href="#featuredMovies" class="footer_link">Online Movies</a>
+          <a href="#featuredShows" class="footer_link">Online TV Series</a>
+          <a href="#upcomingSection" class="footer_link">Upcoming</a>
+          <a href="#trendingSection" class="footer_link">Trending</a>
+          <a href="#subtitleSearchSection" class="footer_link">Subtitles</a>
+          <a href="#qualitySearchSection" class="footer_link">Quality</a>
+          <a href="#audioSearchSection" class="footer_link">Audio</a>
+          <a href="./news.html" class="footer_link">News</a>
+        </div>
+      </div>
+      <div class="footer_bottom">
+        <span class="footer_copy">&copy; 2026 MovieStatus. All rights reserved.</span>
+        <span class="footer_tagline">By movie maniacs, for movie maniacs ❤️</span>
+      </div>
+    </footer>
+
+    <template id="cardTemplate">
+      <article class="card">
+        <div class="card_feat">
+          <a class="card_imgLink">
+            <img class="card_img" alt="" loading="lazy" />
+          </a>
+          <span class="card_badge"></span>
+          <span class="card_typeBadge"></span>
+        </div>
+        <div class="card_body">
+          <h3 class="card_title"><a class="card_titleLink"></a></h3>
+          <div class="card_meta">
+            <span class="card_year"></span>
+            <span class="card_age"></span>
+          </div>
+          <div class="card_platforms"></div>
+          <div class="card_extra">
+            <div class="movie-status-row">
+              <div class="movie-status"></div>
+              <div class="card_action-btns">
+                <a class="tmdb-page-btn" href="#" target="_blank" rel="noopener noreferrer" title="Open this title on The Movie Database">TMDb</a>
+                <button class="redirect-btn" type="button" title="Opens Google Search for this title">
+                  <span class="spacer"></span> <span class="text" title="Opens Google Search for this title">WATCH IT ONLINE</span>
+                  <span class="arrow">↪</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <template id="heroCardTemplate">
+      <article class="hero-card">
+        <div class="hero-card_feat">
+          <img class="hero-card_img" alt="" loading="lazy" />
+          <div class="hero-card_overlay">
+            <span class="hero-card_badge"></span>
+            <h2 class="hero-card_title"></h2>
+            <div class="hero-card_meta">
+              <span class="hero-card_year"></span>
+              <span class="hero-card_age"></span>
+            </div>
+            <div class="hero-card_platforms"></div>
+            <div class="hero-card_footer">
+              <div class="hero-card_movie-status movie-status"></div>
+              <div class="hero-card_action-btns">
+                <a class="tmdb-page-btn tmdb-page-btn-compact" href="#" target="_blank" rel="noopener noreferrer" title="Open on The Movie Database">TMDb</a>
+                <button type="button" class="redirect-btn redirect-btn-compact" title="Opens Google Search for this title">
+                  <span class="spacer"></span> <span class="text">WATCH IT ONLINE</span>
+                  <span class="arrow">↪</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="./config.js"></script>
+    <script src="./tmdb-client.js"></script>
+    <script src="./search-verify.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
