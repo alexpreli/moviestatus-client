@@ -109,7 +109,14 @@
     return { text: "D+" + days, cls: "is-online" };
   }
 
-  function ageDaysLong(days) {
+  function ageDaysLong(days, status) {
+    if (status === "Released") {
+      if (typeof days === "number" && days > 0) {
+        return days + (days === 1 ? " day" : " days") + " since release";
+      }
+      if (days === 0) return "Released today";
+      return "Released";
+    }
     if (typeof days !== "number" || !Number.isFinite(days)) return "Released";
     if (days < 0) return Math.abs(days) + " days until release";
     if (days === 0) return "Released today";
@@ -408,7 +415,7 @@
     }
 
     var hAgeDays = (typeof item.foundOnlineDays === "number") ? item.foundOnlineDays : null;
-    age.textContent = ageDaysLong(hAgeDays);
+    age.textContent = ageDaysLong(hAgeDays, item.status);
 
     if (platforms && Array.isArray(item.platforms)) {
       for (var hi = 0; hi < Math.min(item.platforms.length, 3); hi++) {
@@ -479,7 +486,7 @@
     if (!item.year) {
       ageEl.style.display = "none";
     } else if (ageInfo) {
-      ageEl.textContent = ageDaysLong(ageDays);
+      ageEl.textContent = ageDaysLong(ageDays, item.status);
       ageEl.classList.remove("is-unknown");
       ageEl.classList.add(ageInfo.cls);
     } else {
@@ -653,7 +660,8 @@
       hasTmdbPoster: !!r.poster_path,
       foundOnlineDays: days,
       releaseDateISO: dateStr,
-      platforms: []
+      platforms: [],
+      status: r.status || ""
     };
   }
 
@@ -1026,6 +1034,7 @@
       subtitleSearchStatus.textContent = "Checking for available subtitles...";
 
       items.forEach(item => {
+        item.hasTrailer = true; // Force trailer button for this section
         const card = buildCard(item);
         subtitleSearchResults.appendChild(card);
         const ageEl = card.querySelector(".card_age");
@@ -1047,7 +1056,7 @@
 
             if (subJson.ok && subJson.data.length) {
               const list = subJson.data.map(s => s.display).sort((a, b) => a.localeCompare(b)).join(", ");
-              statusRow.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px; font-size:14px; width:100%;"><strong style="white-space:nowrap; color:var(--neon-light);">Available Tracks:</strong> <span style="flex:1; word-break:break-word;">${list}</span></div>`;
+              statusRow.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px; font-size:14px; width:100%;"><strong style="white-space:nowrap; color:var(--neon-light);">Available Subtitles:</strong> <span style="flex:1; word-break:break-word;">${list}</span></div>`;
               statusRow.classList.add("found");
               setLeakBadge(card, true, null, item);
               const vBtn = card.querySelector(".redirect-btn");
@@ -1106,6 +1115,7 @@
 
       var rendered = 0;
       items.forEach(item => {
+        item.hasTrailer = true; // Force trailer button for this section
         const card = buildCard(item);
         qualitySearchResults.appendChild(card);
         const ageEl = card.querySelector(".card_age");
@@ -1186,6 +1196,7 @@
 
       var rendered = 0;
       items.forEach(item => {
+        item.hasTrailer = true; // Force trailer button for this section
         const card = buildCard(item);
         audioSearchResults.appendChild(card);
         const ageEl = card.querySelector(".card_age");
