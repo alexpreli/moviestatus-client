@@ -1034,7 +1034,7 @@
       subtitleSearchStatus.textContent = "Checking for available subtitles...";
 
       items.forEach(item => {
-        item.hasTrailer = true; // Force trailer button for this section
+        item.hasTrailer = true;
         const card = buildCard(item);
         subtitleSearchResults.appendChild(card);
         const ageEl = card.querySelector(".card_age");
@@ -1115,7 +1115,7 @@
 
       var rendered = 0;
       items.forEach(item => {
-        item.hasTrailer = true; // Force trailer button for this section
+        item.hasTrailer = true;
         const card = buildCard(item);
         qualitySearchResults.appendChild(card);
         const ageEl = card.querySelector(".card_age");
@@ -1196,7 +1196,7 @@
 
       var rendered = 0;
       items.forEach(item => {
-        item.hasTrailer = true; // Force trailer button for this section
+        item.hasTrailer = true;
         const card = buildCard(item);
         audioSearchResults.appendChild(card);
         const ageEl = card.querySelector(".card_age");
