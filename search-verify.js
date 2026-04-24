@@ -20,40 +20,6 @@
     return "";
   }
 
-  function todayUTC() {
-    return new Date().toISOString().slice(0, 10);
-  }
-
-  function getQuotaLimit() {
-    var n = Number(cfg().searchVerifyDailyLimit);
-    if (!Number.isFinite(n)) return 0;
-    if (n <= 0) return 0;
-    return Math.floor(n);
-  }
-
-  function consumeQuota() {
-    var limit = getQuotaLimit();
-    if (limit <= 0) return;
-    var day = todayUTC();
-    var rec = { day: day, count: 0 };
-    var raw = global.localStorage ? localStorage.getItem(STORAGE_KEY) : null;
-    if (raw) {
-      try {
-        var parsed = JSON.parse(raw);
-        if (parsed && parsed.day === day && typeof parsed.count === "number") rec = parsed;
-      } catch (ignore) { }
-    }
-    if (rec.count >= limit) {
-      throw new Error("LIMIT");
-    }
-    rec.count += 1;
-    if (global.localStorage) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(rec));
-      } catch (ignore) { }
-    }
-  }
-
   function listingEnabled() {
     return cfg().listingCheck !== false;
   }
@@ -62,23 +28,6 @@
     meta = meta || {};
     if (!listingEnabled()) {
       return Promise.resolve({ ok: false, likely: null, skipped: true });
-    }
-    try {
-      consumeQuota();
-    } catch (e) {
-      if (String(e && e.message) === "LIMIT") {
-        return Promise.resolve({
-          ok: false,
-          likely: null,
-          error:
-            "You have reached the daily limit for availability checks. Please try again tomorrow.",
-        });
-      }
-      return Promise.resolve({
-        ok: false,
-        likely: null,
-        error: "Something went wrong. Please try again.",
-      });
     }
     var root = apiRoot();
     var qs =
