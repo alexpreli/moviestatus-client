@@ -47,14 +47,31 @@
           return { items: (res.items || []).slice(0, limit || 20) };
         });
     },
-    searchById: function (id) {
-      return tmdbProxy("tmdb-details", { id: id, type: "movie" })
-        .catch(function () {
-          return tmdbProxy("tmdb-details", { id: id, type: "tv" });
-        })
-        .then(function (res) {
-          if (!res.ok) throw new Error("Item not found");
+    searchById: function (id, type) {
+      if (type === "movie") {
+        return tmdbProxy("tmdb-details", { id: id, type: "movie" }).then(function (res) {
+          if (!res || !res.ok || !res.item) throw new Error("Movie not found");
           return res.item;
+        });
+      }
+      if (type === "tv" || type === "show") {
+        return tmdbProxy("tmdb-details", { id: id, type: "tv" }).then(function (res) {
+          if (!res || !res.ok || !res.item) throw new Error("TV Series not found");
+          return res.item;
+        });
+      }
+      // "All": Try movie first, prioritize it.
+      return tmdbProxy("tmdb-details", { id: id, type: "movie" })
+        .then(function (res) {
+          if (res && res.ok && res.item) return res.item;
+          throw new Error("not found");
+        })
+        .catch(function () {
+          // Fallback to TV if movie fails or not found
+          return tmdbProxy("tmdb-details", { id: id, type: "tv" }).then(function (res) {
+            if (res && res.ok && res.item) return res.item;
+            throw new Error("Item not found on TMDb");
+          });
         });
     }
   };

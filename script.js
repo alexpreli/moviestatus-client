@@ -34,17 +34,20 @@
   const searchDropdown = $("#searchDropdown");
 
   const subtitleSearchInput = $("#subtitleSearchInput");
+  const subtitleSearchType = $("#subtitleSearchType");
   const subtitleLangSelect = $("#subtitleLangSelect");
   const subtitleSearchBtn = $("#subtitleSearchBtn");
   const subtitleSearchResults = $("#subtitleSearchResults");
   const subtitleSearchStatus = $("#subtitleSearchStatus");
 
   const qualitySearchInput = $("#qualitySearchInput");
+  const qualitySearchType = $("#qualitySearchType");
   const qualitySelect = $("#qualitySelect");
   const qualitySearchBtn = $("#qualitySearchBtn");
   const qualitySearchResults = $("#qualitySearchResults");
   const qualitySearchStatus = $("#qualitySearchStatus");
   const audioSearchInput = $("#audioSearchInput");
+  const audioSearchType = $("#audioSearchType");
   const audioSearchBtn = $("#audioSearchBtn");
   const audioSearchResults = $("#audioSearchResults");
   const audioSearchStatus = $("#audioSearchStatus");
@@ -153,33 +156,34 @@
     return { query: q, year: null };
   }
 
-  function setLeakBadge(card, likely, leakTimeDays, item) {
+  function setAvailabilityBadge(card, likely, availabilityAgeDays, item) {
     var badge = card.querySelector(".card_badge") || card.querySelector(".hero-card_badge");
     if (!badge) return;
-    badge.classList.remove("is-upcoming", "is-unavailable", "is-leaked", "is-unleaked");
+    badge.classList.remove("is-upcoming", "is-unavailable", "is-available");
     if (likely === true) {
       badge.textContent = "ONLINE";
-      badge.classList.add("is-leaked");
+      badge.classList.add("is-available");
       return;
     }
     if (likely === false) {
       if (item && !item.year) {
         badge.textContent = "OFFLINE";
       } else {
-        var dStr = dLabel(leakTimeDays);
+        var dStr = dLabel(availabilityAgeDays);
         badge.textContent = dStr === "PENDING" ? "OFFLINE" : "OFFLINE " + dStr;
       }
-      badge.classList.add("is-unleaked");
+      badge.classList.add("is-unavailable");
       return;
     }
     badge.textContent = "CHECKING";
   }
 
-  function openCineby(item) {
+  function openSearch(item) {
     if (!item || !item.id) return;
-    const type = (item.type === "show" || item.type === "tv") ? "tv" : "movie";
-    const cinebyUrl = `https://cineby.sc/${type}/${item.id}?play=true`;
-    const searchUrl = `https://www.google.com/url?q=${encodeURIComponent(cinebyUrl)}`;
+    const title = item.title || item.name;
+    const year = item.year || (item.releaseDateISO ? item.releaseDateISO.substring(0, 4) : "");
+    const query = `!g watch ${title} ${year ? "(" + year + ")" : ""} online subtitled stream for free`;
+    const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
     window.open(searchUrl, "_blank", "noopener,noreferrer");
   }
 
@@ -201,7 +205,7 @@
     if (rowOpts.listingOffline) {
       movieStatus.textContent = "Availability service is offline.";
       movieStatus.classList.add("is-inconclusive");
-      setLeakBadge(card, null, null, item);
+      setAvailabilityBadge(card, null, null, item);
       return;
     }
 
@@ -217,9 +221,9 @@
           " | Untrusted: " +
           ((res.audio.untrusted || []).join(", ") || "None");
       } else {
-        movieStatus.textContent = "LEAKED";
+        movieStatus.textContent = "AVAILABLE";
       }
-      setLeakBadge(card, true, res.leakTimeDays, item);
+      setAvailabilityBadge(card, true, res.availabilityAgeDays, item);
       movieStatus.classList.add("found");
       return;
     }
@@ -236,25 +240,25 @@
           ((res.audio.untrusted || []).join(", ") || "None");
       } else {
         if (item && !item.year) {
-          movieStatus.textContent = "UNLEAKED";
+          movieStatus.textContent = "UNAVAILABLE";
         } else {
-          movieStatus.textContent = "UNLEAKED " + dLabel(res.leakTimeDays);
+          movieStatus.textContent = "UNAVAILABLE " + dLabel(res.availabilityAgeDays);
         }
       }
-      setLeakBadge(card, false, res.leakTimeDays, item);
+      setAvailabilityBadge(card, false, res.availabilityAgeDays, item);
       movieStatus.classList.add("not-found");
       return;
     }
     if (res && res.ok && res.likely === null) {
       movieStatus.textContent = "Could not confirm availability.";
       movieStatus.classList.add("is-inconclusive");
-      setLeakBadge(card, null, null, item);
+      setAvailabilityBadge(card, null, null, item);
       return;
     }
     if (res && res.skipped) {
       movieStatus.textContent = "Availability checks are turned off.";
       movieStatus.classList.add("is-inconclusive");
-      setLeakBadge(card, null, null, item);
+      setAvailabilityBadge(card, null, null, item);
       return;
     }
     var errMsg = res && res.error ? String(res.error) : "";
@@ -262,12 +266,12 @@
       var short = errMsg.length > 160 ? errMsg.slice(0, 157) + "…" : errMsg;
       movieStatus.textContent = short;
       movieStatus.classList.add("is-inconclusive");
-      setLeakBadge(card, null, null, item);
+      setAvailabilityBadge(card, null, null, item);
       return;
     }
     movieStatus.textContent = "Something went wrong. Please try again.";
     movieStatus.classList.add("is-inconclusive");
-    setLeakBadge(card, null, null, item);
+    setAvailabilityBadge(card, null, null, item);
   }
 
   async function verifyItemsInContainer(container, items, opts) {
@@ -400,7 +404,7 @@
       heroVerify.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        openCineby(item);
+        openSearch(item);
       });
     }
 
@@ -592,7 +596,7 @@
       verifyBtn.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        openCineby(item);
+        openSearch(item);
       });
     }
 
@@ -1010,16 +1014,17 @@
       if (subtitleSearchStatus) subtitleSearchStatus.textContent = "Enter a title or ID.";
       return;
     }
+    var type = subtitleSearchType ? subtitleSearchType.value : "all";
     subtitleSearchStatus.textContent = "Resolving TMDb reference…";
     try {
       var idMatch = query.match(/^\d+$/);
       var items = [];
       if (idMatch) {
-        var details = await window.MovieStatusTmdb.searchById(query);
+        var details = await window.MovieStatusTmdb.searchById(query, type);
         if (details) items = [details];
       } else {
         var parsed = parseQueryAndYear(query);
-        var data = await window.MovieStatusTmdb.search(parsed.query, "all", regionVal(), 1, parsed.year);
+        var data = await window.MovieStatusTmdb.search(parsed.query, type, regionVal(), 1, parsed.year);
         items = data && data.items ? data.items : [];
       }
 
@@ -1040,7 +1045,10 @@
         const ageEl = card.querySelector(".card_age");
         if (ageEl) ageEl.style.display = "none";
         var root = verifyApiRoot();
-        var url = (root ? root : "") + `/api/subtitles-list?tmdbId=${item.id}`;
+        var url = (root ? root : "") + `/api/subtitles-list?tmdbId=${item.id}&title=${encodeURIComponent(item.title)}&type=${item.type}`;
+        if (item.type === "show") {
+          url += `&season=${encodeURIComponent(item.seasonNumber || "")}&episode=${encodeURIComponent(item.episodeNumber || "")}`;
+        }
         var headers = {};
         if (MOVIESTATUS_CONFIG.apiKey) headers["x-api-key"] = MOVIESTATUS_CONFIG.apiKey;
 
@@ -1058,13 +1066,13 @@
               const list = subJson.data.map(s => s.display).sort((a, b) => a.localeCompare(b)).join(", ");
               statusRow.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px; font-size:14px; width:100%;"><strong style="white-space:nowrap; color:var(--neon-light);">Available Subtitles:</strong> <span style="flex:1; word-break:break-word;">${list}</span></div>`;
               statusRow.classList.add("found");
-              setLeakBadge(card, true, null, item);
+              setAvailabilityBadge(card, true, null, item);
               const vBtn = card.querySelector(".redirect-btn");
               if (vBtn) vBtn.style.display = "";
             } else {
               statusRow.textContent = "No subtitles available for this title.";
               statusRow.classList.add("not-found");
-              setLeakBadge(card, false, item.foundOnlineDays, item);
+              setAvailabilityBadge(card, false, item.foundOnlineDays, item);
             }
           })
           .catch(err => {
@@ -1090,16 +1098,17 @@
       if (qualitySearchStatus) qualitySearchStatus.textContent = "Enter a title or ID.";
       return;
     }
+    var type = qualitySearchType ? qualitySearchType.value : "all";
     qualitySearchStatus.textContent = "Resolving TMDb reference…";
     try {
       var idMatch = query.match(/^\d+$/);
       var items = [];
       if (idMatch) {
-        var details = await window.MovieStatusTmdb.searchById(query);
+        var details = await window.MovieStatusTmdb.searchById(query, type);
         if (details) items = [details];
       } else {
         var parsed = parseQueryAndYear(query);
-        var data = await window.MovieStatusTmdb.search(parsed.query, "all", regionVal(), 1, parsed.year);
+        var data = await window.MovieStatusTmdb.search(parsed.query, type, regionVal(), 1, parsed.year);
         items = data && data.items ? data.items : [];
       }
 
@@ -1122,7 +1131,10 @@
         if (ageEl) ageEl.style.display = "none";
         rendered++;
         var root = verifyApiRoot();
-        var url = (root ? root : "") + `/api/quality-list?tmdbId=${item.id}`;
+        var url = (root ? root : "") + `/api/quality-list?tmdbId=${item.id}&title=${encodeURIComponent(item.title)}&type=${item.type}`;
+        if (item.type === "show") {
+          url += `&season=${encodeURIComponent(item.seasonNumber || "")}&episode=${encodeURIComponent(item.episodeNumber || "")}`;
+        }
         var headers = {};
         if (MOVIESTATUS_CONFIG.apiKey) headers["x-api-key"] = MOVIESTATUS_CONFIG.apiKey;
 
@@ -1140,13 +1152,13 @@
               const labels = qualJson.data.map(translateQuality).sort((a, b) => a.localeCompare(b)).join(", ");
               statusRow.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px; font-size:14px; width:100%;"><strong style="white-space:nowrap; color:var(--neon-light);">Video Qualities:</strong> <span style="flex:1; word-break:break-word;">${labels}</span></div>`;
               statusRow.classList.add("found");
-              setLeakBadge(card, true, null, item);
+              setAvailabilityBadge(card, true, null, item);
               const vBtn = card.querySelector(".redirect-btn");
               if (vBtn) vBtn.style.display = "";
             } else {
               statusRow.textContent = "No specific quality tags detected.";
               statusRow.classList.add("not-found");
-              setLeakBadge(card, false, item.foundOnlineDays, item);
+              setAvailabilityBadge(card, false, item.foundOnlineDays, item);
             }
           })
           .catch(err => {
@@ -1171,16 +1183,17 @@
       if (audioSearchStatus) audioSearchStatus.textContent = "Enter a title or ID.";
       return;
     }
+    var type = audioSearchType ? audioSearchType.value : "all";
     audioSearchStatus.textContent = "Resolving TMDb reference…";
     try {
       var idMatch = query.match(/^\d+$/);
       var items = [];
       if (idMatch) {
-        var details = await window.MovieStatusTmdb.searchById(query);
+        var details = await window.MovieStatusTmdb.searchById(query, type);
         if (details) items = [details];
       } else {
         var parsed = parseQueryAndYear(query);
-        var data = await window.MovieStatusTmdb.search(parsed.query, "all", regionVal(), 1, parsed.year);
+        var data = await window.MovieStatusTmdb.search(parsed.query, type, regionVal(), 1, parsed.year);
         items = data && data.items ? data.items : [];
       }
 
@@ -1203,7 +1216,10 @@
         if (ageEl) ageEl.style.display = "none";
         rendered++;
         var root = verifyApiRoot();
-        var url = (root ? root : "") + `/api/audio-languages?tmdbId=${item.id}&type=${item.type}`;
+        var url = (root ? root : "") + `/api/audio-languages?tmdbId=${item.id}&type=${item.type}&title=${encodeURIComponent(item.title)}`;
+        if (item.type === "show") {
+          url += `&season=${encodeURIComponent(item.seasonNumber || "")}&episode=${encodeURIComponent(item.episodeNumber || "")}`;
+        }
         var headers = {};
         if (MOVIESTATUS_CONFIG.apiKey) headers["x-api-key"] = MOVIESTATUS_CONFIG.apiKey;
 
@@ -1229,13 +1245,13 @@
                   <div style="display:flex; align-items:flex-start; gap:8px;"><strong style="white-space:nowrap; color:var(--neon-light);">Dubbed Audio:</strong> <span style="flex:1; word-break:break-word;">${trans}</span></div>
                 </div>`;
               statusRow.classList.add("found");
-              setLeakBadge(card, true, null, item);
+              setAvailabilityBadge(card, true, null, item);
               const vBtn = card.querySelector(".redirect-btn");
               if (vBtn) vBtn.style.display = "";
             } else {
               statusRow.textContent = "No audio language data available.";
               statusRow.classList.add("not-found");
-              setLeakBadge(card, false, item.foundOnlineDays, item);
+              setAvailabilityBadge(card, false, item.foundOnlineDays, item);
             }
           })
           .catch(err => {

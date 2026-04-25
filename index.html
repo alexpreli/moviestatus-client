@@ -19,7 +19,7 @@
       <div class="noticebar">
         <div class="noticebar_inner">
           <div class="noticebar_dot"></div>
-          <span class="noticebar_text">Streaming Availability Tracker &mdash; find where to watch movies &amp; TV shows on any online source for free. Prefer official platforms.</span>
+          <span class="noticebar_text">Streaming Availability Tracker &mdash; find where to watch movies &amp; TV shows on any online source for free. Use official platforms.</span>
         </div>
       </div>
     </div>
@@ -96,7 +96,7 @@
           <div class="disclaimer-container">
             <p class="legal-disclaimer legal-disclaimer-tip">Tip: specify the year for more accurate results</p>  
             <p class="legal-disclaimer">MovieStatus is a legal streaming availability tracker. We help you find where movies 
-              and TV series can be watched on legitimate platforms. Prefer licensed services; 
+              and TV series can be watched on legitimate platforms. Use licensed services; 
               we do not endorse unauthorized sources.</p>
           </div>
         </div>
@@ -125,7 +125,7 @@
             <div>
               <h2 class="section-heading_title">Search Results</h2>
               <p class="section-heading_desc" id="searchResultsDesc">Showing results for your query</p>
-              <p class="legal-disclaimer legal-disclaimer-tight">Leak status uses metadata checks. Press "WATCH IT ONLINE" to open a new search tab for the same title.</p>
+              <p class="legal-disclaimer legal-disclaimer-tight">Availability status uses metadata checks. Press "SEARCH ONLINE" to open a new search tab for the title.</p>
             </div>
             <button id="closeSearchBtn" class="close-search-btn" type="button" title="Hide search results">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -213,6 +213,11 @@
               placeholder="Movie / TV Series Title (optional: year) or TMDb ID…"
               autocomplete="off"
             />
+            <select id="subtitleSearchType" class="searchRow_select">
+              <option value="all" selected>All</option>
+              <option value="movie">Movies</option>
+              <option value="show">TV Series</option>
+            </select>
             <button id="subtitleSearchBtn" class="searchRow_btn" type="button">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -222,10 +227,10 @@
           </div>
           <p id="subtitleSearchStatus" class="statusLine tool-section_status" role="status"></p>
           <p class="legal-disclaimer legal-disclaimer-tight">
-            Uses TMDb for titles. Prefer licensed services; we do not endorse unauthorized sources.
+            Information retrieved from TMDb API. Use licensed services; we do not endorse unauthorized sources.
           </p>
           <p class="legal-disclaimer legal-disclaimer-tight" style="color: lightgreen; font-weight: bold; margin-bottom: 10px;">
-            We recommend using an adblocker when using unofficial sources because they often contain malicious ads.
+            We recommend using an adblocker when using online streaming sources because they often contain malicious ads.
           </p>
           <div id="subtitleSearchResults" class="card-grid tool-card-grid" aria-live="polite"></div>
         </div>
@@ -247,6 +252,11 @@
               placeholder="Movie / TV Series Title (optional: year) or TMDb ID…"
               autocomplete="off"
             />
+            <select id="qualitySearchType" class="searchRow_select">
+              <option value="all" selected>All</option>
+              <option value="movie">Movies</option>
+              <option value="show">TV Series</option>
+            </select>
             <button id="qualitySearchBtn" class="searchRow_btn" type="button">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -256,7 +266,7 @@
           </div>
           <p id="qualitySearchStatus" class="statusLine tool-section_status" role="status"></p>
           <p class="legal-disclaimer legal-disclaimer-tight">
-            Uses TMDb for titles. Prefer licensed services; we do not endorse unauthorized sources.
+            Information retrieved from TMDb API. Use licensed services; we do not endorse unauthorized sources.
           </p>
           <div id="qualitySearchResults" class="card-grid tool-card-grid" aria-live="polite"></div>
         </div>
@@ -277,6 +287,11 @@
               placeholder="Movie / TV Series Title (optional: year) or TMDb ID…"
               autocomplete="off"
             />
+            <select id="audioSearchType" class="searchRow_select">
+              <option value="all" selected>All</option>
+              <option value="movie">Movies</option>
+              <option value="show">TV Series</option>
+            </select>
             <button id="audioSearchBtn" class="searchRow_btn" type="button">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -286,7 +301,7 @@
           </div>
           <p id="audioSearchStatus" class="statusLine tool-section_status" role="status"></p>
           <p class="legal-disclaimer legal-disclaimer-tight">
-            Audio results come from public listings only, not from playback guarantees. Prefer licensed services.
+            Audio results come from public listings only, not from playback guarantees. Use licensed services.
           </p>
           <div id="audioSearchResults" class="card-grid tool-card-grid" aria-live="polite"></div>
         </div>
@@ -308,7 +323,7 @@
               <span class="logo_title">MovieStatus</span>
             </div>
           </div>
-          <p class="footer_desc">MovieStatus is a legal streaming availability tracker.<br>We help you find where movies and TV series can be watched on legitimate platforms.<br>Prefer licensed services; we do not endorse unauthorized sources.</p>
+          <p class="footer_desc">MovieStatus is a legal streaming availability tracker.<br>We help you find where movies and TV series can be watched on legitimate platforms.<br>Use licensed services; we do not endorse unauthorized sources.</p>
         </div>
         <div class="footer_links">
           <h4 class="footer_linksTitle">Legal</h4>
@@ -357,8 +372,8 @@
               <div class="movie-status"></div>
               <div class="card_action-btns">
                 <a class="tmdb-page-btn" href="#" target="_blank" rel="noopener noreferrer" title="Open this title on The Movie Database">TMDb</a>
-                <button class="redirect-btn" type="button" title="Opens Google Search for this title">
-                  <span class="spacer"></span> <span class="text" title="Opens Google Search for this title">WATCH IT ONLINE</span>
+                <button class="redirect-btn" type="button" title="Search online for this title">
+                  <span class="spacer"></span> <span class="text" title="Search online for this title">SEARCH ONLINE</span>
                   <span class="arrow">↪</span>
                 </button>
               </div>
@@ -386,8 +401,8 @@
               </div>
               <div class="hero-card_action-btns">
                 <a class="tmdb-page-btn tmdb-page-btn-compact" href="#" target="_blank" rel="noopener noreferrer" title="Open on The Movie Database">TMDb</a>
-                <button type="button" class="redirect-btn redirect-btn-compact" title="Opens Google Search for this title">
-                  <span class="spacer"></span> <span class="text">WATCH IT ONLINE</span>
+                <button type="button" class="redirect-btn redirect-btn-compact" title="Search online for this title">
+                  <span class="spacer"></span> <span class="text">SEARCH ONLINE</span>
                   <span class="arrow">↪</span>
                 </button>
               </div>

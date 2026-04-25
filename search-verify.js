@@ -85,7 +85,7 @@
             likely: likely === true ? true : likely === false ? false : null,
             statsText: data.statsText != null ? data.statsText : null,
             watchUrl: data.watchUrl ? String(data.watchUrl) : "",
-            leakTimeDays: Number.isFinite(Number(data.leakTimeDays)) ? Number(data.leakTimeDays) : null,
+            availabilityAgeDays: Number.isFinite(Number(data.availabilityAgeDays)) ? Number(data.availabilityAgeDays) : null,
             quality: data.quality || null,
             audio: data.audio || null,
             error: data.error ? String(data.error) : "",
